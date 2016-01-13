@@ -1,0 +1,250 @@
+#!/usr/bin/env ruby
+$: << File.expand_path('../../lib', __FILE__)
+require 'rubygems'
+require 'yaml'
+require 'optparse'
+require 'fileutils'
+require 'ridgepole'
+require 'ridgepole/cli/config'
+
+$stdout.sync = true
+$stderr.sync = true
+
+Version = Ridgepole::VERSION
+DEFAULT_FILENAME = 'Schemafile'
+
+COLUMN_TYPES = {
+  :boolean => :bool,
+  :integer => :int,
+  :float   => :float,
+  :string  => :string,
+  :text    => :text,
+  :binary  => :binary,
+}
+
+config = nil
+env = 'development'
+mode = nil
+file = DEFAULT_FILENAME
+output_file = '-'
+split = false
+diff_files = nil
+diff_with_apply = false
+exit_code = 0
+
+options = {
+  :dry_run => false,
+  :debug   => false,
+}
+
+set_mode = proc do |m|
+  raise 'More than one mode is specified' if mode
+  mode = m
+end
+
+def noop_migrate(delta)
+  unless delta.script.empty?
+    puts delta.script + "\n\n"
+  end
+
+  migrated, out = delta.migrate(:noop => true)
+
+  if migrated
+    out.each_line do |line|
+      if line =~ /\A\s+/
+        puts "# #{line}"
+      else
+        puts line.strip.gsub(/([^\d])([(),])([^\d])/) { "#{$1}#{$2}\n#{$3}" }.each_line.map {|i| "# #{i.gsub(/^\s+/, '')}"}.join + "\n"
+      end
+    end
+  end
+
+  return migrated
+end
+
+ARGV.options do |opt|
+  begin
+    opt.on('-c', '--config CONF_OR_FILE')         {|v| config = v                                           }
+    opt.on('-E', '--env ENVIRONMENT')             {|v| env = v                                              }
+    opt.on('-a', '--apply')                       {    set_mode[:apply]                                     }
+    opt.on('-m', '--merge')                       {    set_mode[:apply]; options[:merge] = true             }
+    opt.on('-f', '--file FILE')                   {|v| file = v                                             }
+    opt.on('',   '--dry-run')                     {    options[:dry_run] = true                             }
+    opt.on('',   '--table-options OPTIONS')       {|v| options[:table_options] = v                          }
+    opt.on('',   '--bulk-change') {
+      raise "Cannot use `bulk-change` in `merge`" if options[:merge]
+      options[:bulk_change] = true
+    }
+
+    COLUMN_TYPES.each do |column_type, column_type_alias|
+      opt.on('', "--default-#{column_type_alias}-limit LIMIT", Integer) {|v|
+        options[:"default_#{column_type}_limit"] = v
+      }
+    end
+
+    opt.on('',   '--pre-query QUERY')             {|v| options[:pre_query] = v                              }
+    opt.on('',   '--post-query QUERY')            {|v| options[:post_query] = v                             }
+    opt.on('-e', '--export')                      {    set_mode[:export]                                    }
+    opt.on('',   '--split')                       {|v| split = true                                         }
+    opt.on('',   '--split-with-dir')              {|v| split = :with_dir                                    }
+    opt.on('-d', '--diff DSL1 DSL2') {|diff_arg1|
+      set_mode[:diff]
+      diff_arg2 = ARGV.first
+
+      if [diff_arg1, diff_arg2].any? {|i| i.nil? or i =~ /\A-/ }
+        puts opt.help
+        exit 1
+      end
+
+      ARGV.shift
+      diff_files = [diff_arg1, diff_arg2]
+    }
+    opt.on('',   '--reverse')                     {    options[:reverse] = true                             }
+    opt.on('',   '--with-apply')                  {    diff_with_apply = true                               }
+    opt.on('-o', '--output FILE')                 {|v| output_file = v                                      }
+    opt.on('-t', '--tables TABLES', Array)        {|v| options[:tables] = v                                 }
+    opt.on('',   '--ignore-tables TABLES', Array) {|v| options[:ignore_tables] = v.map {|i| Regexp.new(i) } }
+    opt.on('',   '--enable-mysql-awesome')        {    options[:enable_mysql_awesome] = true                }
+    opt.on('',   '--dump-without-table-options')  {    options[:dump_without_table_options] = true          }
+    opt.on('',   '--index-removed-drop-column')   {    options[:index_removed_drop_column] = true           }
+    opt.on('',   '--enable-migration-comments')   {    options[:enable_migration_comments] = true           }
+    opt.on('-r'  , '--require LIBS', Array)       {|v| v.each {|i| require i }                              }
+    opt.on(''  , '--log-file LOG_FILE')           {|v| options[:log_file] = v                               }
+    opt.on(''  , '--verbose')                     {    Ridgepole::Logger.verbose = true                     }
+    opt.on(''  , '--debug')                       {    options[:debug] = true                               }
+
+    opt.on('-v', '--version') {
+      puts opt.ver
+      exit
+    }
+
+    opt.parse!
+
+    if not mode or ([:apply, :export].include?(mode) and not config) or  (options[:with_apply] and not config)
+      puts opt.help
+      exit 1
+    end
+  rescue => e
+    $stderr.puts("[ERROR] #{e.message}")
+    puts e.backtrace
+    exit 1
+  end
+end
+
+begin
+  logger = Ridgepole::Logger.instance
+  logger.set_debug(options[:debug])
+
+  client = Ridgepole::Client.new(Ridgepole::Config.load(config, env), options) if config
+
+  ActiveRecord::Base.logger = logger
+
+  case mode
+  when :export
+    if split
+      logger.info('Export Schema')
+
+      output_file = DEFAULT_FILENAME if output_file == '-'
+      requires = []
+
+      client.dump do |name, definition|
+        schema_dir = File.dirname(output_file)
+        schema_dir = File.join(schema_dir, name) if split == :with_dir
+        schema_file = File.join(schema_dir, "#{name}.schema")
+
+        require_path = File.basename(schema_file)
+        require_path = File.join(name, require_path) if split == :with_dir
+        requires << require_path
+
+        logger.info("  write `#{schema_file}`")
+        FileUtils.mkdir_p(schema_dir)
+
+        open(schema_file, 'wb') do |f|
+          f.puts definition
+        end
+      end
+
+      logger.info("  write `#{output_file}`")
+
+      open(output_file, 'wb') do |f|
+        requires.each do |require_path|
+          f.puts "require '#{require_path}'"
+        end
+      end
+    else
+      if output_file == '-'
+        logger.info('# Export Schema')
+        puts client.dump
+      else
+        logger.info("Export Schema to `#{output_file}`")
+        open(output_file, 'wb') {|f| f.puts client.dump }
+      end
+    end
+  when :apply
+    unless File.exist?(file)
+      raise "No Schemafile found (looking for: #{file})"
+    end
+
+    msg = (options[:merge] ? 'Merge' : 'Apply') + " `#{file}`"
+    msg << ' (dry-run)' if options[:dry_run]
+    logger.info(msg)
+
+    dsl = File.read(file)
+    delta = client.diff(dsl, :path => file)
+    differ = delta.differ?
+
+    if options[:dry_run]
+      if differ
+        differ = noop_migrate(delta)
+      end
+    else
+      logger.verbose_info('# Update schema')
+      differ, out = delta.migrate
+    end
+
+    unless differ
+      logger.info('No change')
+    end
+  when :diff
+    diff_files = diff_files.map do |file|
+      if File.exist?(file)
+        file_ext = File.extname(file)
+
+        if %w(.yml .yaml).include?(file_ext)
+          Ridgepole::Config.load(file, env)
+        else
+          File.open(file)
+        end
+      else
+        YAML.load(file)
+      end
+    end
+
+    delta = Ridgepole::Client.diff(*diff_files, options)
+
+    if diff_with_apply
+      logger.verbose_info('# Update schema')
+      differ = delta.differ?
+
+      if differ
+        differ, out = delta.migrate
+      end
+
+      if differ
+        logger.info('No change')
+      end
+    elsif delta.differ?
+      differ = noop_migrate(delta)
+      exit_code = 1 if differ
+    end
+  end
+rescue => e
+  if options[:debug]
+    raise e
+  else
+    $stderr.puts("[ERROR] #{e.message}")
+    exit 1
+  end
+end
+
+exit exit_code

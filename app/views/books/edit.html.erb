@@ -1,0 +1,13 @@
+<%= form_for @book, method: 'patch' do |f| %>
+    <div class="field">
+      <%= f.label :title %>
+      <%= f.text_field :title %>
+    </div>
+    <div class="isbn">
+      <%= f.label :isbn %>
+      <%= f.text_field :isbn %>
+    </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+<% end %>

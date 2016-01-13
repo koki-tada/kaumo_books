@@ -1,0 +1,28 @@
+
+<%= search_form_for @search do |f| %>
+    <%= f.label :title_cont, 'タイトル' %>
+    <%= f.text_field :title_cont %>
+    <%= f.label :isbn_eq, 'ISBN-10' %>
+    <%= f.text_field :isbn_eq %>
+    <div>
+      <%= f.submit '検索する' %>
+      　<h5>
+      <p>ISBN-10検索で出てきた本に関しては一意なので一発でKAUMOにある本なのかがわかるため便利です。</p>
+      <p>ISBN-10検索は完全一致検索なので、必ず10桁の英数字を入れるようにしてください。</p>
+      <p>タイトル検索は曖昧検索なのでタイトルの一部でも大丈夫です。</p>
+    </h5>
+    </div>
+<% end %>
+
+<h3><%= link_to "本を注文する", new_book_path %></h3>
+
+<h1>本一覧</h1>
+
+<% @books.each do |b| %>
+    <h2>
+      <%= link_to b.title, edit_book_path(b) %>
+      <%= b.isbn %>
+    </h2>
+<% end %>
+
+<div class="pages"><%= paginate @books %></div>

@@ -1,0 +1,4 @@
+create_table "books", force: true do |t|
+  t.text  "title"
+  t.text "isbn"
+end

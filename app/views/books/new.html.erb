@@ -1,0 +1,14 @@
+<%= form_for @book do |f| %>
+<div class="field">
+  <%= f.label :title %>
+  <%= f.text_field :title %>
+</div>
+<div class="isbn">
+  <%= f.label :isbn %>
+  <%= f.text_field :isbn %>
+  <h1>Isbnには必ず10桁の英数字を登録してください。</h1>
+</div>
+<div class="actions">
+  <%= f.submit %>
+</div>
+<% end %>
