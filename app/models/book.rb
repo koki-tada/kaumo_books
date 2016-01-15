@@ -1,4 +1,4 @@
 class Book < ActiveRecord::Base
   validates :title, presence: true
-  validates :isbn, presence: true, uniqueness: true, length: { minimum:10, maximum: 10 }
+  validates :isbn, presence: true, uniqueness: true, length: { is:10 }
 end
