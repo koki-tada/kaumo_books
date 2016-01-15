@@ -2,10 +2,6 @@ class BooksController < ApplicationController
   def index
     @search = Book.search(params[:q])
     @books = @search.result.page(params[:page])
-    respond_to do |f|
-      f.html
-      f.json { render json: @books }
-    end
   end
 
   def show
@@ -18,13 +14,10 @@ class BooksController < ApplicationController
 
   def create
     @book = Book.new(book_params)
-
-    respond_to do |format|
-      if @book.save
-        format.html{redirect_to @book }
-      else
-        format.html{render action:'new'}
-      end
+    if @book.save
+      redirect_to @book
+    else
+      render action:'new'
     end
   end
 
