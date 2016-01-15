@@ -1,3 +1,8 @@
+<% if flash[:alert].present? %>
+    <div class="alert alert-danger" role="alert">
+      <%= flash[:alert]  %>
+    </div>
+<% end %>
 <%= form_for @book, method: 'patch' do |f| %>
     <div class="field">
       <%= f.label :title %>
