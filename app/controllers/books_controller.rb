@@ -37,8 +37,10 @@ class BooksController < ApplicationController
     @book.title = book_params['title']
     @book.isbn = book_params['isbn']
     if @book.save
+      flash.notice = '保存しました。'
       redirect_to action: :show
     else
+      flash.alert = '保存に失敗しました。もう一度ISBNを確認してください。'
       redirect_to action: :edit
     end
   end
