@@ -17,7 +17,7 @@ class BooksController < ApplicationController
     if @book.save
       redirect_to @book
     else
-      render action:'new'
+      redirect_to :back
     end
   end
 
@@ -34,7 +34,7 @@ class BooksController < ApplicationController
       redirect_to action: :show
     else
       flash.alert = '保存に失敗しました。もう一度ISBNを確認してください。'
-      redirect_to action: :edit
+      redirect_to :back
     end
   end
 
