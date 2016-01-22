@@ -1,0 +1,14 @@
+<% if flash[:alert].present? %>
+    <div class="alert alert-danger" role="alert">
+      <%= flash[:alert]  %>
+    </div>
+<% end %>
+<%= form_for @user, method: 'patch' do |f| %>
+    <div class="field">
+      <%= f.label :name %>
+      <%= f.text_field :name %>
+    </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+<% end %>

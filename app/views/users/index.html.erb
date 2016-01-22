@@ -1,0 +1,11 @@
+<h1>User一覧</h1>
+<div class="register"><h2><%= link_to "User登録", new_user_path %></h2></div>
+
+<% @user.each do |user| %>
+    <h2>
+      <%= user.id %>
+      <%= link_to user.name, user_path(user) %>
+    </h2>
+<% end %>
+
+<div class="pages"><%= paginate @user %></div>
