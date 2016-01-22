@@ -3,6 +3,12 @@
       <%= flash[:notice]  %>
     </div>
 <% end %>
+<% if @book.status == 1 then %>
+    注文中です
+<% else %>
+    KAUMOにあります
+<% end %>
+
 <h1><%= link_to @book.title, edit_book_path(@book.id) %></h1>
 <h3><%=  @book.isbn %></h3>
 

@@ -35,10 +35,11 @@ class BooksController < ApplicationController
 
   def update
     @book = Book.find(params[:id]).update(book_params)
-    redirect_to :root
+    @book.status = ORDER if params[:status] == 1
+    redirect_to :action => "show"
   end
 
   def book_params
-    params.require(:book).permit(:title, :isbn, :user_id)
+    params.require(:book).permit(:title, :isbn, :user_id, :status)
   end
 end
