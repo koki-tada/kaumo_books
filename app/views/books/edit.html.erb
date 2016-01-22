@@ -12,7 +12,15 @@
       <%= f.label :isbn %>
       <%= f.text_field :isbn %>
     </div>
+    <%= f.text_field :user_id, :placeholder => " User_IDを入れてください", :class => "register_area" %>
     <div class="actions">
       <%= f.submit %>
     </div>
+<% end %>
+<div class="return">本を返す場合はUser_idを1にしてupdateしてください。</div>
+<% @user.each do |u| %>
+   <h2>
+     <%= u.id %>
+     <%= u.name %>
+   </h2>
 <% end %>

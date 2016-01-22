@@ -1,0 +1,4 @@
+<h1>借りられている本一覧</h1>
+<% @borrow.each do |b| %>
+   <h3><%= link_to b.title, borrow_path(b.id) %></h3>
+<% end %>

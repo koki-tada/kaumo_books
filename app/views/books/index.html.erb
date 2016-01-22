@@ -20,7 +20,7 @@
 
 <% @books.each do |b| %>
     <h2>
-      <%= link_to b.title, edit_book_path(b) %>
+      ・<%= link_to b.title, book_path(b) %>
       <%= b.isbn %>
     </h2>
 <% end %>

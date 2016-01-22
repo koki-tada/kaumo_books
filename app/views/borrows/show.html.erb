@@ -1,0 +1,8 @@
+<h1>借りているUser</h1>
+<h2>id= <%= @borrow_id.user_id %></h2>
+<% @all_user.each do |a| %>
+    <h3>
+      id. <%= a.id %> =
+      <%= a.name %>
+    </h3>
+<% end %>

@@ -3,6 +3,13 @@ Rails.application.routes.draw do
 
   resources 'books', :except => [:destroy]
 
+  resources 'users'
+
+  get 'borrows' => 'borrows#index'
+
+  get 'borrows/:id' => 'borrows#show', as: 'borrow'
+
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

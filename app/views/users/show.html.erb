@@ -1,0 +1,5 @@
+<h1><%= @user.name %></h1>
+<% @user_books.each do |b| %>
+  <h4><%= b.title %></h4>
+<% end %>
+<%= link_to "戻る", users_path %>
