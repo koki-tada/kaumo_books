@@ -11,7 +11,7 @@ pid "/var/run/kaumo-books.pid"
 preload_app true
 
 stdout_path File.expand_path('log/unicorn.stdout.log',rails_root)
-stderr_path File.expadn_path('log/unicorn.stderr.log',rails_root)
+stderr_path File.expand_path('log/unicorn.stderr.log',rails_root)
 
 before_fork do |server, worker|
   defined?(ActiveRecord::Base) and ActiveRecord::Base.connection.disconnect!
