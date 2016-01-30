@@ -1,3 +1,8 @@
 .register a{
-    color: tomato;
+    color: black;
+    text-decoration: none;
+}
+
+.register a:hover{
+    background-color: tomato;
 }
