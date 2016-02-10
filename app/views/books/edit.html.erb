@@ -12,15 +12,14 @@
       <%= f.label :isbn %>
       <%= f.text_field :isbn %>
     </div>
-    <p><%= f.label :user %><%= f.text_field :user_id, :placeholder => " User_IDを入れてください", :class => "register_area" %></p>
-    <p><%= f.label :status %><%= f.text_field :status, :placeholder => " 注文中であれば1にしてください", :class => "register_area" %></p>
+    <p><%= f.label :user %><%= f.select :user_id, User.all.map { |p| [p.name, p.id] } %></p>
+    <p><%= f.label :"有無" %><%= f.radio_button :status, 0 %> <%= f.label :status_0, "あります" %><%= f.radio_button :status, 1 %> <%= f.label :status_1, "注文中" %></p>
     <div class="actions">
       <%= f.submit %>
     </div>
 <% end %>
 <div class="return">
-  <p>本を返す場合はUserを1にしてupdateしてください。</p>
-  <p>本が注文中の場合はStatusを1にしてupdateしてください。</p>
+  <p>本を借りる場合はUserを自分の名前に、返す場合はKAUMOにしてupdateしてください。</p>
 </div>
 <% @user.each do |u| %>
    <h2>

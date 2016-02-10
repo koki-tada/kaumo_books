@@ -13,7 +13,7 @@
   <%= f.text_field :isbn %>
 </div>
 <div class="status">
-  <%= f.label :status %><%= f.text_field :status, :placeholder => " 注文中であれば1にしてください", :class => "register_area" %>
+  <p><%= f.label :"有無" %><%= f.radio_button :status, 0 %> <%= f.label :status_0, "あります" %><%= f.radio_button :status, 1 %> <%= f.label :status_1, "注文中" %></p>
 </div>
     <h1>Isbnには必ず10桁の英数字を登録してください。</h1>
     <h1>注文中の本であればStatusを1にしてください。</h1>
