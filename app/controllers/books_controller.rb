@@ -28,6 +28,17 @@ class BooksController < ApplicationController
     end
   end
 
+  def get_info
+    Amazon::Ecs.debug = true
+    res = Amazon::Ecs.item_search(params[:isbn],
+                                  :search_index   => 'Books',
+                                  :response_group => 'Medium',
+                                  :country        => 'jp'
+    )
+    info = {'Title' => res.first_item.get('ItemAttributes/Title'),}
+    render json: info
+  end
+
   def edit
     @book = Book.find(params[:id])
     @user = User.all

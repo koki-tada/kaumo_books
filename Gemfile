@@ -29,8 +29,14 @@ gem 'ransack' #検索機能
 
 gem 'kaminari' #ページネーション
 
+gem 'bootstrap3-rails', '~> 3.2.0'
+gem 'bootstrap-sass'
+gem 'bootstrap_form' # twitter bootstrap form helper
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
+
+gem 'amazon-ecs'
 
 group :production do
  # Use Unicorn as the app server

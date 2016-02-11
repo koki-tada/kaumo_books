@@ -4,19 +4,15 @@
     </div>
 <% end %>
 <%= form_for @book do |f| %>
+    <p>ISBN</p><%= f.text_field :isbn %>
+    <input class="btn btn-danger" type="button" id="info_search_button" value="検索">
 <div class="field">
-  <%= f.label :title %>
-  <%= f.text_field :title %>
-</div>
-<div class="isbn">
-  <%= f.label :isbn %>
-  <%= f.text_field :isbn %>
+  <p>Title</p> <%= f.text_field :title %>
 </div>
 <div class="status">
   <p><%= f.label :"有無" %><%= f.radio_button :status, 0 %> <%= f.label :status_0, "あります" %><%= f.radio_button :status, 1 %> <%= f.label :status_1, "注文中" %></p>
 </div>
     <h1>Isbnには必ず10桁の英数字を登録してください。</h1>
-    <h1>注文中の本であればStatusを1にしてください。</h1>
 <div class="actions">
   <%= f.submit %>
 </div>
