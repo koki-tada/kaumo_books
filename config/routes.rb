@@ -3,6 +3,8 @@ Rails.application.routes.draw do
 
   resources 'books', :except => [:destroy]
 
+  get 'get_info' => 'books#get_info', path: '/books/new/get_info'
+
   resources 'users'
 
   get 'borrows' => 'borrows#index'

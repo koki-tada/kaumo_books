@@ -1,6 +1,7 @@
 require File.expand_path('../boot', __FILE__)
 
 require 'rails/all'
+require 'amazon/ecs'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -22,5 +23,11 @@ module KaumoBooks
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
+    Amazon::Ecs.options = {
+        :associate_tag =>      'kaumo-22',
+        :AWS_access_key_id =>  'AKIAJOOTB2GYI47USU7A',
+        :AWS_secret_key =>     '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'
+    }
   end
+
 end
