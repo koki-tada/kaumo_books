@@ -20,8 +20,7 @@ $(document).on 'ready page:load', ->
       success:  (data, textStatus, jqXHR) ->
         if data?
           $("#book_title").val(data.Title)
+          $("#book_image").val(data.MediumImage)
         else
           $("#msg").css("color","#ff0000").html("書籍情報が見つかりませんでした。")
-
-
   $("#book_isbn").change -> $("#msg").html("")
