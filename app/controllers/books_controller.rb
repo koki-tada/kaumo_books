@@ -35,7 +35,8 @@ class BooksController < ApplicationController
                                   :response_group => 'Medium',
                                   :country        => 'jp'
     )
-    info = {'Title' => res.first_item.get('ItemAttributes/Title'),}
+    info = {'Title' => res.first_item.get('ItemAttributes/Title'),
+            'MediumImage' => res.first_item.get('MediumImage/URL')}
     render json: info
   end
 
@@ -51,6 +52,6 @@ class BooksController < ApplicationController
   end
 
   def book_params
-    params.require(:book).permit(:title, :isbn, :user_id, :status)
+    params.require(:book).permit(:title, :isbn, :user_id, :status, :image)
   end
 end
