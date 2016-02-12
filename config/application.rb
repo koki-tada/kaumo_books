@@ -23,11 +23,6 @@ module KaumoBooks
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
-    Amazon::Ecs.options = {
-        :associate_tag =>      'kaumo-22',
-        :AWS_access_key_id =>  'AKIAJOOTB2GYI47USU7A',
-        :AWS_secret_key =>     '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'
-    }
-  end
+    
 
 end
